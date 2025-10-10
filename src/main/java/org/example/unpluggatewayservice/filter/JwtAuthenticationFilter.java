@@ -28,7 +28,11 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         String path = exchange.getRequest().getPath().value();
 
         // API 요청 허용
-        if (path.startsWith("/user/signup") || path.startsWith("/user/login") || path.startsWith("/user/refresh") || path.startsWith("/user/check/**") || path.startsWith("/user/logout")){
+        if (path.startsWith("/user/signup") || path.startsWith("/user/login") || path.startsWith("/user/refresh")
+                || path.startsWith("/user/check/**") || path.startsWith("/user/logout")
+                || path.contains("/swagger-ui") || path.contains("/v3/api-docs")
+                || path.contains("/webjars") || path.contains("/swagger-resources")
+        ){
             return chain.filter(exchange);
         }
 
