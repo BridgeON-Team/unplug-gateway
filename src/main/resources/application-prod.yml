@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: unplug-gateway-service
+  cloud:
+    gateway:
+      global-cors: #추가한 부분
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://unplug.ncp.com"  # 개발 서버 주소(포트) 에 맞춰서 수정...
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE #여기까지...
+      routes:
+        - id: user-service
+          uri: http://user-service:8081
+          predicates:
+            - Path=/user/**
+        - id: chatbot-service
+          uri: http://chatbot-service:8082
+          predicates:
+            - Path=/api/**
+        - id: restrict-service
+          uri: http://restrict-service:8083
+          predicates:
+            - Path=/restrict/**
+        - id: websocket-chat
+          uri: http://chatbot-service:8082
+          predicates:
+            - Path=/ws/**
+        - id: challenge-service
+          uri: http://challenge-service:8084
+          predicates:
+            - Path=/challenge/**
+
+jwt:
+  secret: ${JWT_SECRET}
