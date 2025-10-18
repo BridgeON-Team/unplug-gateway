@@ -27,6 +27,11 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain){
         String path = exchange.getRequest().getPath().value();
 
+        // 추가한 부분 (인증이 필요 없는 경로 목록)
+        if (isPublicPath(path)) {
+            return chain.filter(exchange);
+        }// 여기까지 ...
+
         // API 요청 허용
         if (path.startsWith("/user/signup") || path.startsWith("/user/login") || path.startsWith("/user/refresh") || path.startsWith("/user/check/**") || path.startsWith("/user/logout")){
             return chain.filter(exchange);
@@ -54,4 +59,9 @@ public class JwtAuthenticationFilter implements GlobalFilter {
             return exchange.getResponse().setComplete();
         }
     }
+
+    // 추가한 부분 (WebSocket 포함한 공개 경로들)
+    private boolean isPublicPath(String path) {
+        return path.startsWith("/ws");   // WebSocket handshake 예외 추가
+    }// 여기까지 ...
 }
