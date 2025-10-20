@@ -1,0 +1,73 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: unplug-gateway-service
+  cloud:
+    gateway:
+      global-cors: #추가한 부분
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: ${PROD_ADDRESS}  # 개발 서버 주소(포트) 에 맞춰서 수정...
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE #여기까지...
+      routes:
+        - id: user-service
+          uri: http://user-service:8081
+          predicates:
+            - Path=/user/**, /v3/api-docs/user
+          filters:
+            - RewritePath=/v3/api-docs/user, /v3/api-docs
+        - id: chatbot-service
+          uri: http://chatbot-service:8082
+          predicates:
+            - Path=/chatbot/**, /v3/api-docs/chatbot
+          filters:
+            - RewritePath=/v3/api-docs/chatbot, /v3/api-docs
+        - id: restrict-service
+          uri: http://restrict-service:8083
+          predicates:
+            - Path=/restrict/**, /v3/api-docs/restrict
+          filters:
+            - RewritePath=/v3/api-docs/restrict, /v3/api-docs
+        - id: websocket-chat
+          uri: http://chatbot-service:8082
+          predicates:
+            - Path=/ws/**
+        - id: challenge-service
+          uri: http://challenge-service:8084
+          predicates:
+            - Path=/challenge/**, /v3/api-docs/challenge
+          filters:
+            - RewritePath=/v3/api-docs/challenge, /v3/api-docs
+springdoc:
+  swagger-ui:
+    urls:
+      - name: user-service
+        url: /v3/api-docs/user
+      - name: chatbot-service
+        url: /v3/api-docs/chatbot
+      - name: restrict-service
+        url: /v3/api-docs/restrict
+      - name: challenge-service
+        url: /v3/api-docs/challenge
+    path: /swagger-ui.html
+    filter: true
+  api-docs:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info   # actuator 기본 health/info만 노출
+  endpoint:
+    health:
+      show-details: always   # DB 상태 등 상세 출력
+
+jwt:
+  secret: ${JWT_SECRET}
