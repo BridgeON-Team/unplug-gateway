@@ -9,7 +9,9 @@ spring:
       global-cors: #추가한 부분
         corsConfigurations:
           '[/**]':
-            allowedOrigins: ${PROD_ADDRESS}  # 개발 서버 주소(포트) 에 맞춰서 수정...
+            allowedOriginPatterns:
+              - ${PROD_ADDRESS}  # 개발 서버 주소(포트) 에 맞춰서 수정...
+              - "http://localhost:*"
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
