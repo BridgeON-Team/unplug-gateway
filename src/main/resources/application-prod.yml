@@ -43,7 +43,7 @@ spring:
         - id: challenge-service
           uri: http://challenge-service:8084
           predicates:
-            - Path=/challenge/**, /v3/api-docs/challenge
+            - Path=/challenge/**, /v3/api-docs/challenge, /group/**
           filters:
             - RewritePath=/v3/api-docs/challenge, /v3/api-docs
 springdoc:
